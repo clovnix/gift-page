@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🎁</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 16px}
+    .card{border:1px solid #e5e7eb;border-radius:16px;padding:18px}
+    input,button{font:inherit;padding:10px 12px;border-radius:12px;border:1px solid #d1d5db}
+    button{cursor:pointer}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    #videoWrap{margin-top:16px;display:none}
+    .hint{color:#6b7280;margin-top:8px;font-size:14px}
+    iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:14px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Kurze Frage, bevor’s losgeht 🙂</h2>
+    <p>Wie heißt du?</p>
+
+    <div class="row">
+      <input id="name" placeholder="Dein Name" autocomplete="off" />
+      <button id="go">Weiter</button>
+    </div>
+
+    <p class="hint">Tipp: Groß-/Kleinschreibung egal.</p>
+
+    <div id="videoWrap">
+      <hr style="margin:18px 0;border:0;border-top:1px solid #eee">
+      <p id="msg"></p>
+
+      <!-- YouTube Embed -->
+      <iframe id="yt"
+        src=""
+        title="Video"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    const allowed = ["max", "maria", "ben"]; // hier deinen Ziel-Namen rein
+    const videoId = "DEINE_YOUTUBE_VIDEO_ID"; // <- ersetzen
+
+    const nameEl = document.getElementById("name");
+    const wrap = document.getElementById("videoWrap");
+    const msg = document.getElementById("msg");
+    const yt = document.getElementById("yt");
+
+    function norm(s){ return (s||"").trim().toLowerCase(); }
+
+    document.getElementById("go").onclick = () => {
+      const n = norm(nameEl.value);
+      if(!n) return;
+
+      if(allowed.includes(n)) {
+        msg.textContent = `Hi ${nameEl.value.trim()} — hier kommt deine Botschaft. 🎁`;
+        yt.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+        wrap.style.display = "block";
+        nameEl.disabled = true;
+      } else {
+        alert("Hmm… der Name passt nicht ganz. Versuch’s nochmal 🙂");
+      }
+    };
+
+    nameEl.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") document.getElementById("go").click();
+    });
+  </script>
+</body>
+</html>
