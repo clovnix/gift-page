@@ -11,7 +11,6 @@
       --bg1:#06121a;
       --bg2:#0a1b2a;
       --card: rgba(255,255,255,.08);
-      --card2: rgba(255,255,255,.10);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.72);
       --good: #33ff99;
@@ -34,20 +33,23 @@
                   linear-gradient(180deg, var(--bg1), var(--bg2));
       overflow-x:hidden;
       -webkit-font-smoothing: antialiased;
+
+      /* etwas Platz für Safe-Areas + Restart Button */
       padding:
         calc(env(safe-area-inset-top) + 12px)
         calc(env(safe-area-inset-right) + 12px)
-        calc(env(safe-area-inset-bottom) + 82px)
+        calc(env(safe-area-inset-bottom) + 76px)
         calc(env(safe-area-inset-left) + 12px);
     }
 
     /* 9:16 friendly centered stage */
     .stage{
       width:min(430px, 100%);
-      min-height: calc(100svh - 12px - 82px);
+      height: calc(100svh - (env(safe-area-inset-top) + env(safe-area-inset-bottom) + 88px));
+      min-height: 520px;
       margin: 0 auto;
       display:flex;
-      align-items:center;
+      align-items:stretch;
       justify-content:center;
       position:relative;
     }
@@ -58,10 +60,13 @@
       border: 1px solid var(--stroke);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 18px 16px;
+      padding: 16px 14px;
       backdrop-filter: blur(10px);
       position:relative;
       overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
     }
 
     .card::before{
@@ -77,7 +82,7 @@
     .card > *{position:relative; z-index:1}
 
     .title{
-      margin: 6px 0 10px;
+      margin: 4px 0 8px;
       font-weight: 950;
       letter-spacing: -0.02em;
       line-height: 1.03;
@@ -92,14 +97,14 @@
     }
 
     .subtitle{
-      margin: 0 0 14px;
+      margin: 0;
       color: var(--muted);
       font-size: 14px;
       line-height: 1.45;
     }
 
     .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-    .spacer{height:10px}
+    .spacer{height:6px}
 
     input{
       width:100%;
@@ -124,6 +129,7 @@
       transition: transform .08s ease, background .15s ease, border-color .15s ease;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     button:hover{background: var(--btn2)}
     button:active{transform: translateY(1px) scale(0.99)}
@@ -144,11 +150,11 @@
       padding: 8px 10px;
       color: var(--muted);
       font-size: 13px;
-      margin-bottom: 10px;
+      width: fit-content;
     }
 
     .feedback{
-      margin-top:10px;
+      margin-top:6px;
       font-weight:700;
       font-size: 14px;
       min-height: 18px;
@@ -157,7 +163,7 @@
     .no{color: var(--bad)}
 
     .hint{
-      margin-top:10px;
+      margin-top:6px;
       display:none;
       border: 1px dashed rgba(255,255,255,.22);
       background: rgba(0,0,0,.16);
@@ -235,24 +241,32 @@
       100% { opacity:0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(360deg) scale(1.05); }
     }
 
-    /* Tetris */
-    .tetrisWrap{
+    /* Tetris layout: alles auf einen Screen */
+    .tetrisLayout{
+      flex: 1;
+      min-height: 0;
       display:flex;
       flex-direction:column;
-      gap:12px;
-      align-items:center;
-      justify-content:center;
-      margin-top: 6px;
+      gap: 10px;
+      justify-content: flex-start;
     }
+
+    .tetrisTop{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
+
     canvas{
-      width:min(360px, 100%);
-      height:auto;
       border-radius: 18px;
       background: rgba(0,0,0,.25);
       border: 1px solid rgba(255,255,255,.18);
       box-shadow: 0 18px 45px rgba(0,0,0,.35);
       touch-action:none;
+      align-self:center;
+      display:block;
     }
+
     .controls{
       width:100%;
       display:grid;
@@ -260,10 +274,11 @@
       gap:10px;
     }
     .controls button{width:100%}
+
     .smallnote{
       font-size: 13px;
       color: var(--muted);
-      line-height: 1.35;
+      line-height: 1.25;
       margin: 0;
     }
 
@@ -298,11 +313,9 @@
 </head>
 
 <body>
-  <!-- festive background -->
   <div id="snow"></div>
   <div id="gifts"></div>
 
-  <!-- restart -->
   <button class="restart" id="restartBtn" title="Alles zurücksetzen">
     🔄 <span style="font-weight:800">Neustart</span>
   </button>
@@ -317,7 +330,7 @@
      ***************/
     const STORAGE_KEY = "xmas_riddle_25_state_v1";
 
-    // >>> HIER später deine YouTube IDs eintragen (nur die Video-ID, nicht die ganze URL)
+    // >>> HIER deine YouTube IDs eintragen (nur die Video-ID, nicht die ganze URL)
     const YT_VIDEO_ID_ANDRE   = "PASTE_ANDRE_VIDEO_ID_HERE";
     const YT_VIDEO_ID_HENDRIK = "PASTE_HENDRIK_VIDEO_ID_HERE";
 
@@ -350,7 +363,7 @@
       quizIndex: 0,      // 0..2
       quizDone: false,
       tetrisDone: false,
-      linesCleared: 0,   // total cleared lines across attempts (for goal only)
+      linesCleared: 0,
       nameStageReached: false
     });
 
@@ -376,12 +389,11 @@
      ***************/
     const esc = (s) => (s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     const norm = (s) => {
-      // trim + lower + remove accents/diacritics (Andre == André)
       return (s || "")
         .trim()
         .toLowerCase()
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+        .replace(/[\u0300-\u036f]/g, ""); // remove accents (Andre == André)
     };
 
     function burstEmoji(){
@@ -402,6 +414,11 @@
       setTimeout(()=>burst.remove(), 950);
     }
 
+    function setScrollMode(mode){
+      // mode: "auto" | "hidden"
+      document.body.style.overflowY = mode;
+    }
+
     /***************
      * UI RENDER
      ***************/
@@ -414,37 +431,31 @@
     }
 
     function renderIntro(){
+      setScrollMode("auto");
+
       app.innerHTML = `
-        <div class="badge">🎅 <b>X-Mas Riddle '25</b> <span>•</span> <span>Mobile-Ready</span></div>
+        <div class="badge">🎅 <b>X-Mas Riddle '25</b></div>
         <h1 class="title"><span class="grad">Herzlich Willkommen</span><br/>zum X-Mas Riddle '25</h1>
         <p class="subtitle">
           Kleine Rätsel, ein Mini-Game, dann wartet dein Geschenk.
           <br/>Fortschritt wird auf diesem Gerät gespeichert.
         </p>
-        <button class="primary" id="startBtn">▶️ Start</button>
         <div class="spacer"></div>
-        <button class="ghost mini" id="skipBtn" title="(Nur für dich zum Testen)">⚙️ Debug: Direkt zum Namen</button>
+        <button class="primary" id="startBtn">▶️ Start</button>
       `;
       document.getElementById("startBtn").onclick = () => {
         state.step = "quiz";
-        state.quizIndex = state.quizDone ? 3 : state.quizIndex;
         saveState();
         render();
       };
-      document.getElementById("skipBtn").onclick = () => {
-        state.step = "name";
-        state.quizDone = true;
-        state.tetrisDone = true;
-        state.nameStageReached = true;
-        saveState();
-        render();
-      };
+
       app.classList.add("fadeIn");
       setTimeout(()=>app.classList.remove("fadeIn"), 260);
     }
 
     function renderQuiz(){
-      // If already done, go next
+      setScrollMode("auto");
+
       if(state.quizDone){
         state.step = "tetris";
         saveState();
@@ -456,11 +467,11 @@
 
       app.innerHTML = `
         <div class="badge">🧩 <b>Rätsel</b> <span>•</span> <span>${idx+1}/3</span></div>
-        <h2 style="margin:8px 0 6px; font-size:20px; letter-spacing:-0.01em">${esc(Q.title)}</h2>
-        <p class="subtitle" style="font-size:15px; margin-bottom:12px">${esc(Q.q)}</p>
+        <h2 style="margin:0; font-size:20px; letter-spacing:-0.01em">${esc(Q.title)}</h2>
+        <p class="subtitle" style="font-size:15px">${esc(Q.q)}</p>
 
         <input id="answer" placeholder="Deine Antwort…" autocomplete="off" />
-        <div class="row" style="margin-top:10px">
+        <div class="row">
           <button class="primary" id="checkBtn">✅ Bestätigen</button>
           <button class="ghost" id="hintBtn">💡 Tipp</button>
         </div>
@@ -468,9 +479,7 @@
         <div class="hint" id="hintBox">${esc(Q.hint)}</div>
         <div class="feedback" id="fb"></div>
 
-        <p class="smallnote" style="margin-top:8px">
-          Hinweis: Groß-/Kleinschreibung ist egal.
-        </p>
+        <p class="smallnote">Hinweis: Groß-/Kleinschreibung ist egal.</p>
       `;
 
       const input = document.getElementById("answer");
@@ -491,7 +500,6 @@
             state.step = "tetris";
           }
           saveState();
-
           setTimeout(()=>render(), 520);
         }else{
           fb.className = "feedback no";
@@ -515,8 +523,12 @@
      * TETRIS
      ***************/
     let tetris = null;
+    let keyHandlerAttached = false;
 
     function renderTetris(){
+      // während Tetris KEIN Scrollen, damit alles intuitiv bedienbar ist
+      setScrollMode("hidden");
+
       if(state.tetrisDone){
         state.step = "name";
         state.nameStageReached = true;
@@ -525,19 +537,19 @@
       }
 
       app.innerHTML = `
-        <div class="badge">🧱 <b>Tetris-Mini-Game</b> <span>•</span> <span>Ziel: 3 Reihen</span></div>
-        <h2 style="margin:8px 0 6px; font-size:20px; letter-spacing:-0.01em">Kurze Challenge</h2>
-        <p class="subtitle" style="font-size:15px; margin-bottom:10px">
-          Schaffe es, <b>insgesamt 3 Reihen zu löschen</b> (egal welche).
-          <br/>Dann geht’s zum Geschenk. 🎁
-        </p>
+        <div class="tetrisLayout">
+          <div class="tetrisTop">
+            <div class="badge">🧱 <b>Tetris</b> <span>•</span> <span>Ziel: 3 Reihen</span></div>
+            <p class="subtitle" style="font-size:14px">
+              Lösche insgesamt <b>3 Reihen</b>. Dann geht’s weiter. 🎁
+            </p>
+          </div>
 
-        <div class="tetrisWrap">
-          <canvas id="tetris" width="300" height="600" aria-label="Tetris"></canvas>
+          <canvas id="tetris" aria-label="Tetris"></canvas>
 
-          <div class="row" style="justify-content:space-between; width:100%">
-            <div class="badge" style="margin:0">✅ Reihen gelöscht: <b id="lineCount">${state.linesCleared}</b>/3</div>
-            <button class="ghost mini" id="newGameBtn">🔁 Neu starten</button>
+          <div class="row" id="statsRow" style="justify-content:space-between">
+            <div class="badge" style="margin:0">✅ Reihen: <b id="lineCount">${state.linesCleared}</b>/3</div>
+            <button class="ghost mini" id="newGameBtn">🔁 Neu</button>
           </div>
 
           <div class="controls" aria-label="Steuerung">
@@ -547,12 +559,10 @@
             <button class="primary" id="downBtn">⬇️</button>
           </div>
 
-          <p class="smallnote">
-            Tipp: Auf Handy nutzt du die Buttons. Auf Desktop gehen auch Pfeiltasten + ↑ für Drehen.
-          </p>
+          <p class="smallnote" id="tNote">Tipp: Handy = Buttons. Desktop = Pfeile + ↑ (Drehen).</p>
 
-          <div class="row" style="width:100%">
-            <button class="primary" id="continueBtn" style="display:none">🎁 Weiter zum Namen</button>
+          <div class="row" id="continueRow">
+            <button class="primary" id="continueBtn" style="display:none">🎁 Weiter</button>
           </div>
 
           <div class="feedback" id="tFb"></div>
@@ -565,29 +575,19 @@
       const continueBtn = document.getElementById("continueBtn");
       const tFb = document.getElementById("tFb");
 
-      // Fit canvas nicely for mobile
-      function resizeCanvas(){
-        const maxW = Math.min(360, app.clientWidth - 6);
-        const w = Math.max(260, maxW);
-        canvas.width  = Math.floor(w);
-        canvas.height = Math.floor(w * 2);
-      }
-      resizeCanvas();
-      window.addEventListener("resize", resizeCanvas);
-
       // --- Minimal Tetris Engine ---
       const COLS = 10;
       const ROWS = 20;
 
       const COLORS = [
         null,
-        "rgba(51,255,153,.90)",   // 1
-        "rgba(255,85,119,.90)",   // 2
-        "rgba(255,230,120,.92)",  // 3
-        "rgba(120,200,255,.92)",  // 4
-        "rgba(210,150,255,.92)",  // 5
-        "rgba(255,170,110,.92)",  // 6
-        "rgba(255,255,255,.85)"   // 7
+        "rgba(51,255,153,.90)",
+        "rgba(255,85,119,.90)",
+        "rgba(255,230,120,.92)",
+        "rgba(120,200,255,.92)",
+        "rgba(210,150,255,.92)",
+        "rgba(255,170,110,.92)",
+        "rgba(255,255,255,.85)"
       ];
 
       function createMatrix(r, c){
@@ -606,13 +606,11 @@
       };
 
       function rotate(mat, dir){
-        // transpose
         for(let y=0;y<mat.length;y++){
           for(let x=0;x<y;x++){
             [mat[x][y], mat[y][x]] = [mat[y][x], mat[x][y]];
           }
         }
-        // reverse rows/cols
         if(dir > 0) mat.forEach(row => row.reverse());
         else mat.reverse();
       }
@@ -654,8 +652,60 @@
         return rowCount;
       }
 
+      // --- Auto-fit (wichtig: alles ohne Scroll sichtbar) ---
+      let viewW = 280;
+      let viewH = 560;
+
+      function fitCanvas(){
+        const dpr = window.devicePixelRatio || 1;
+
+        // nutzbare Höhe (iOS Safari: visualViewport ist gold)
+        const vh = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+
+        // Top-Offset der Stage im Viewport
+        const stageTop = document.querySelector(".stage").getBoundingClientRect().top;
+
+        // Gesamt nutzbar bis unten (kleiner Puffer)
+        const usableH = Math.max(420, vh - stageTop - 8);
+
+        // Card Höhe strikt auf usableH begrenzen
+        app.style.height = usableH + "px";
+        app.style.maxHeight = usableH + "px";
+
+        // reservierte Elemente messen
+        const topEls = app.querySelectorAll(".tetrisTop");
+        let reservedTop = 0;
+        topEls.forEach(el => reservedTop += el.getBoundingClientRect().height);
+
+        const stats = document.getElementById("statsRow").getBoundingClientRect().height;
+        const controls = document.querySelector(".controls").getBoundingClientRect().height;
+        const note = document.getElementById("tNote").getBoundingClientRect().height;
+        const contRow = document.getElementById("continueRow").getBoundingClientRect().height;
+        const fb = document.getElementById("tFb").getBoundingClientRect().height;
+
+        const gapsAndPadding = 40; // etwas Luft
+        const availableForCanvasH = usableH - reservedTop - stats - controls - note - contRow - fb - gapsAndPadding;
+
+        const maxWByH = Math.floor(availableForCanvasH / 2);
+        const maxWByW = Math.floor(Math.min(360, app.clientWidth - 8));
+
+        const w = Math.max(220, Math.min(maxWByW, maxWByH));
+        viewW = w;
+        viewH = w * 2;
+
+        // CSS Größe
+        canvas.style.width = viewW + "px";
+        canvas.style.height = viewH + "px";
+
+        // echte Pixel für scharfe Darstellung
+        canvas.width = Math.floor(viewW * dpr);
+        canvas.height = Math.floor(viewH * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      // Tetris Rendering
       function drawMatrix(matrix, offset){
-        const cell = canvas.width / COLS;
+        const cell = viewW / COLS;
         for(let y=0;y<matrix.length;y++){
           for(let x=0;x<matrix[y].length;x++){
             const v = matrix[y][x];
@@ -665,8 +715,6 @@
               const py = (y + offset.y) * cell;
 
               ctx.fillRect(px+1, py+1, cell-2, cell-2);
-
-              // subtle highlight
               ctx.fillStyle = "rgba(255,255,255,.12)";
               ctx.fillRect(px+2, py+2, cell-4, Math.max(6, cell*0.18));
             }
@@ -675,25 +723,25 @@
       }
 
       function draw(){
-        // background grid
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        const cell = canvas.width / COLS;
+        ctx.clearRect(0,0,viewW,viewH);
+
+        const cell = viewW / COLS;
 
         ctx.fillStyle = "rgba(0,0,0,.16)";
-        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillRect(0,0,viewW,viewH);
 
         ctx.strokeStyle = "rgba(255,255,255,.06)";
         ctx.lineWidth = 1;
         for(let x=0;x<=COLS;x++){
           ctx.beginPath();
           ctx.moveTo(x*cell,0);
-          ctx.lineTo(x*cell,canvas.height);
+          ctx.lineTo(x*cell,viewH);
           ctx.stroke();
         }
         for(let y=0;y<=ROWS;y++){
           ctx.beginPath();
           ctx.moveTo(0,y*cell);
-          ctx.lineTo(canvas.width,y*cell);
+          ctx.lineTo(viewW,y*cell);
           ctx.stroke();
         }
 
@@ -708,7 +756,6 @@
         player.pos.y = 0;
         player.pos.x = Math.floor(COLS/2) - Math.floor(matrix[0].length/2);
         if(collide(arena, player)){
-          // game over -> reset arena
           arena.forEach(row => row.fill(0));
           tFb.className = "feedback no";
           tFb.textContent = "Oha! Game Over 😄 Neu gestartet.";
@@ -727,7 +774,7 @@
             saveState();
             burstEmoji();
             tFb.className = "feedback ok";
-            tFb.textContent = `Nice! +${cleared} Reihe(n) gelöscht.`;
+            tFb.textContent = `Nice! +${cleared} Reihe(n).`;
           } else {
             tFb.textContent = "";
           }
@@ -737,8 +784,7 @@
             saveState();
             continueBtn.style.display = "block";
             tFb.className = "feedback ok";
-            tFb.textContent = "Geschafft! 🎉 Du hast 3 Reihen gelöscht.";
-            // Stop loop
+            tFb.textContent = "Geschafft! 🎉 3 Reihen gelöscht.";
             tetris.running = false;
           } else {
             playerReset();
@@ -772,7 +818,7 @@
 
       let dropCounter = 0;
       let lastTime = 0;
-      const dropInterval = 520; // ms
+      const dropInterval = 520;
 
       tetris = { running: true };
 
@@ -786,26 +832,37 @@
         requestAnimationFrame(update);
       }
 
+      // init sizing + start
+      fitCanvas();
       playerReset();
       update();
 
-      // Controls (mobile + keyboard)
+      // re-fit on resize/orientation/keyboard
+      window.addEventListener("resize", fitCanvas);
+      if(window.visualViewport){
+        window.visualViewport.addEventListener("resize", fitCanvas);
+        window.visualViewport.addEventListener("scroll", fitCanvas);
+      }
+
+      // Controls
       document.getElementById("leftBtn").onclick = ()=>playerMove(-1);
       document.getElementById("rightBtn").onclick= ()=>playerMove(1);
       document.getElementById("downBtn").onclick = ()=>playerDrop();
       document.getElementById("rotateBtn").onclick= ()=>playerRotate(1);
 
-      document.addEventListener("keydown", (e)=>{
-        if(state.step !== "tetris" || !tetris.running) return;
-        if(e.key === "ArrowLeft")  playerMove(-1);
-        if(e.key === "ArrowRight") playerMove(1);
-        if(e.key === "ArrowDown")  playerDrop();
-        if(e.key === "ArrowUp")    playerRotate(1);
-      }, { passive:true });
+      if(!keyHandlerAttached){
+        document.addEventListener("keydown", (e)=>{
+          if(state.step !== "tetris" || !tetris || !tetris.running) return;
+          if(e.key === "ArrowLeft")  playerMove(-1);
+          if(e.key === "ArrowRight") playerMove(1);
+          if(e.key === "ArrowDown")  playerDrop();
+          if(e.key === "ArrowUp")    playerRotate(1);
+        }, { passive:true });
+        keyHandlerAttached = true;
+      }
 
-      // Restart tetris (not full reset)
+      // Restart tetris (keine Progress-Reset)
       document.getElementById("newGameBtn").onclick = ()=>{
-        // keep cleared count as progress; just reset arena/piece
         arena.forEach(row => row.fill(0));
         playerReset();
         tFb.textContent = "";
@@ -830,30 +887,29 @@
      * NAME / VIDEOS
      ***************/
     function renderName(){
+      setScrollMode("auto");
+
       state.step = "name";
       state.nameStageReached = true;
       saveState();
 
       app.innerHTML = `
         <div class="badge">🎁 <b>Finale</b> <span>•</span> <span>Name eingeben</span></div>
-        <h2 style="margin:8px 0 6px; font-size:20px; letter-spacing:-0.01em">Okay… wer bist du? 😄</h2>
-        <p class="subtitle" style="font-size:15px; margin-bottom:10px">
-          Du kannst hier <b>mehrere Namen ausprobieren</b>, ohne deinen Fortschritt zu verlieren.
+        <h2 style="margin:0; font-size:20px; letter-spacing:-0.01em">Okay… wer bist du? 😄</h2>
+        <p class="subtitle" style="font-size:15px">
+          Du kannst hier mehrere Namen ausprobieren, ohne deinen Fortschritt zu verlieren.
         </p>
 
         <input id="nameInput" placeholder="Dein Name…" autocomplete="off" />
-        <div class="row" style="margin-top:10px">
+        <div class="row">
           <button class="primary" id="nameBtn">✅ Bestätigen</button>
-          <button class="ghost" id="clearBtn">🧼 Eingabe leeren</button>
+          <button class="ghost" id="clearBtn">🧼 Leeren</button>
         </div>
 
         <div class="feedback" id="nameFb"></div>
+        <div class="videoBox" id="videoArea" style="display:none;"></div>
 
-        <div class="videoBox" id="videoArea" style="display:none; margin-top:12px"></div>
-
-        <p class="smallnote" style="margin-top:12px">
-          Hinweis: André wird wie Andre behandelt (keine Akzent-Probleme).
-        </p>
+        <p class="smallnote">Hinweis: André wird wie Andre behandelt.</p>
       `;
 
       const input = document.getElementById("nameInput");
@@ -865,12 +921,12 @@
 
         if(which === "andre"){
           fb.className = "feedback ok";
-          fb.textContent = "Hi André/Andre! Hier ist dein Video 🎬🎁";
+          fb.textContent = "Hi André! Hier ist dein Video 🎬🎁";
           burstEmoji();
 
           videoArea.innerHTML = `
             <div class="placeholder" style="margin-bottom:10px">
-              <b>Andre-Video</b><br/>
+              <b>André-Video</b><br/>
               ✅ Hier wird das YouTube-Embedding angezeigt.<br/>
               <span style="opacity:.85">Trage oben im Code <code>YT_VIDEO_ID_ANDRE</code> ein.</span>
             </div>
@@ -879,7 +935,7 @@
               ? `<div class="placeholder">⚠️ Noch keine Video-ID gesetzt. (Suche im Code nach <b>YT_VIDEO_ID_ANDRE</b>.)</div>`
               : `<iframe
                    src="https://www.youtube.com/embed/${esc(YT_VIDEO_ID_ANDRE)}?rel=0&modestbranding=1"
-                   title="Andre Video"
+                   title="André Video"
                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                    allowfullscreen></iframe>`
             }
@@ -933,7 +989,7 @@
         }
 
         fb.className = "feedback no";
-        fb.textContent = "Schön wär’s, aber du musst dich schon für deinen Namen entscheiden 😄";
+        fb.textContent = "Schön wärs, aber du musst dich schon für deinen Namen entscheiden 😄";
       }
 
       document.getElementById("nameBtn").onclick = checkName;
@@ -951,7 +1007,6 @@
     document.getElementById("restartBtn").addEventListener("click", ()=>{
       localStorage.removeItem(STORAGE_KEY);
       state = defaultState();
-      // Hard refresh to ensure tetris loop is gone
       location.reload();
     });
 
@@ -1008,8 +1063,6 @@
     /***************
      * BOOT
      ***************/
-    // If user already progressed, render that stage.
-    // If quiz was done but tetris not, continue at tetris.
     if(state.quizDone && !state.tetrisDone) state.step = "tetris";
     if(state.quizDone && state.tetrisDone) state.step = "name";
     if(state.step === "quiz" && state.quizIndex >= 3) state.quizDone = true;
