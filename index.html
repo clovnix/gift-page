@@ -2,72 +2,1020 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>🎁</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>X-Mas Riddle '25</title>
+
   <style>
-    body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 16px}
-    .card{border:1px solid #e5e7eb;border-radius:16px;padding:18px}
-    input,button{font:inherit;padding:10px 12px;border-radius:12px;border:1px solid #d1d5db}
-    button{cursor:pointer}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    #videoWrap{margin-top:16px;display:none}
-    .hint{color:#6b7280;margin-top:8px;font-size:14px}
-    iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:14px}
+    :root{
+      --bg1:#06121a;
+      --bg2:#0a1b2a;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --good: #33ff99;
+      --bad: #ff5577;
+      --btn: rgba(255,255,255,.14);
+      --btn2: rgba(255,255,255,.22);
+      --stroke: rgba(255,255,255,.16);
+      --shadow: 0 18px 50px rgba(0,0,0,.45);
+      --radius: 22px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 700px at 20% 10%, #0b3a4a 0%, transparent 60%),
+                  radial-gradient(900px 600px at 90% 20%, #3a0b3f 0%, transparent 60%),
+                  linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+      -webkit-font-smoothing: antialiased;
+      padding:
+        calc(env(safe-area-inset-top) + 12px)
+        calc(env(safe-area-inset-right) + 12px)
+        calc(env(safe-area-inset-bottom) + 82px)
+        calc(env(safe-area-inset-left) + 12px);
+    }
+
+    /* 9:16 friendly centered stage */
+    .stage{
+      width:min(430px, 100%);
+      min-height: calc(100svh - 12px - 82px);
+      margin: 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+
+    .card{
+      width:100%;
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.06));
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 16px;
+      backdrop-filter: blur(10px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(500px 250px at 10% 0%, rgba(51,255,153,.18), transparent 60%),
+        radial-gradient(500px 250px at 90% 0%, rgba(255,85,119,.18), transparent 60%);
+      pointer-events:none;
+      filter: blur(14px);
+      opacity:.85;
+    }
+    .card > *{position:relative; z-index:1}
+
+    .title{
+      margin: 6px 0 10px;
+      font-weight: 950;
+      letter-spacing: -0.02em;
+      line-height: 1.03;
+      font-size: clamp(28px, 6.2vw, 44px);
+      text-shadow: 0 10px 30px rgba(0,0,0,.55);
+    }
+    .title .grad{
+      background: linear-gradient(90deg, #ffffff, #c8ffea, #ffd1dd, #ffffff);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+    }
+
+    .subtitle{
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .spacer{height:10px}
+
+    input{
+      width:100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,.20);
+      color: var(--text);
+      outline:none;
+      font-size:16px;
+    }
+    input:focus{border-color: rgba(255,255,255,.28); box-shadow: 0 0 0 4px rgba(255,255,255,.06)}
+
+    button{
+      border: 1px solid var(--stroke);
+      background: var(--btn);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 750;
+      cursor:pointer;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:hover{background: var(--btn2)}
+    button:active{transform: translateY(1px) scale(0.99)}
+
+    .primary{
+      width:100%;
+      background: linear-gradient(180deg, rgba(51,255,153,.22), rgba(51,255,153,.10));
+      border-color: rgba(51,255,153,.30);
+    }
+    .ghost{background: rgba(0,0,0,.14)}
+    .mini{padding: 10px 12px; font-size: 14px}
+
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
+      border-radius: 999px;
+      padding: 8px 10px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .feedback{
+      margin-top:10px;
+      font-weight:700;
+      font-size: 14px;
+      min-height: 18px;
+    }
+    .ok{color: var(--good)}
+    .no{color: var(--bad)}
+
+    .hint{
+      margin-top:10px;
+      display:none;
+      border: 1px dashed rgba(255,255,255,.22);
+      background: rgba(0,0,0,.16);
+      border-radius: 16px;
+      padding: 10px 12px;
+      color: rgba(255,255,255,.80);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    /* Fixed restart button */
+    .restart{
+      position: fixed;
+      right: calc(env(safe-area-inset-right) + 12px);
+      bottom: calc(env(safe-area-inset-bottom) + 12px);
+      z-index: 50;
+      display:flex; gap:8px; align-items:center;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.45);
+    }
+
+    /* Snow + floating gifts */
+    #snow, #gifts { position: fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
+    .flake{
+      position:absolute;
+      top:-10vh;
+      color: rgba(255,255,255,.85);
+      opacity:.9;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+    @keyframes fall{
+      to { transform: translateY(120vh) rotate(360deg); }
+    }
+
+    .gift{
+      position:absolute;
+      bottom:-12vh;
+      opacity:.85;
+      animation-name: floatUp;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,.42));
+    }
+    @keyframes floatUp{
+      0%   { transform: translateY(0) translateX(0) rotate(-6deg); opacity:0; }
+      10%  { opacity:.85; }
+      50%  { transform: translateY(-65vh) translateX(6vw) rotate(6deg); }
+      100% { transform: translateY(-120vh) translateX(-6vw) rotate(-6deg); opacity:0; }
+    }
+
+    /* Confetti burst (emoji) */
+    .burst{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index: 10;
+    }
+    .burst i{
+      position:absolute;
+      left:50%; top:50%;
+      transform: translate(-50%,-50%);
+      animation: pop 900ms ease-out forwards;
+      filter: drop-shadow(0 10px 22px rgba(0,0,0,.35));
+    }
+    @keyframes pop{
+      0% { opacity:0; transform: translate(-50%,-50%) scale(.6); }
+      10% { opacity:1; }
+      100% { opacity:0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(360deg) scale(1.05); }
+    }
+
+    /* Tetris */
+    .tetrisWrap{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+      margin-top: 6px;
+    }
+    canvas{
+      width:min(360px, 100%);
+      height:auto;
+      border-radius: 18px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+      touch-action:none;
+    }
+    .controls{
+      width:100%;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap:10px;
+    }
+    .controls button{width:100%}
+    .smallnote{
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    .videoBox{
+      width:100%;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.16);
+      border-radius: 18px;
+      padding: 10px;
+      overflow:hidden;
+    }
+    .videoBox .placeholder{
+      padding: 14px 12px;
+      color: rgba(255,255,255,.78);
+      font-size: 14px;
+      line-height: 1.35;
+      border-radius: 14px;
+      border: 1px dashed rgba(255,255,255,.22);
+      background: rgba(0,0,0,.18);
+    }
+    iframe{
+      width:100%;
+      aspect-ratio: 16 / 9;
+      border:0;
+      border-radius: 14px;
+      display:block;
+    }
+
+    .fadeIn{ animation: fadeIn .25s ease-out both; }
+    @keyframes fadeIn{ from{opacity:0; transform: translateY(6px)} to{opacity:1; transform:none} }
   </style>
 </head>
+
 <body>
-  <div class="card">
-    <h2>Kurze Frage, bevor’s losgeht 🙂</h2>
-    <p>Wie heißt du?</p>
+  <!-- festive background -->
+  <div id="snow"></div>
+  <div id="gifts"></div>
 
-    <div class="row">
-      <input id="name" placeholder="Dein Name" autocomplete="off" />
-      <button id="go">Weiter</button>
-    </div>
+  <!-- restart -->
+  <button class="restart" id="restartBtn" title="Alles zurücksetzen">
+    🔄 <span style="font-weight:800">Neustart</span>
+  </button>
 
-    <p class="hint">Tipp: Groß-/Kleinschreibung egal.</p>
-
-    <div id="videoWrap">
-      <hr style="margin:18px 0;border:0;border-top:1px solid #eee">
-      <p id="msg"></p>
-
-      <!-- YouTube Embed -->
-      <iframe id="yt"
-        src=""
-        title="Video"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen></iframe>
-    </div>
-  </div>
+  <main class="stage">
+    <section class="card" id="app" aria-live="polite"></section>
+  </main>
 
   <script>
-    const allowed = ["max", "maria", "ben"]; // hier deinen Ziel-Namen rein
-    const videoId = "DEINE_YOUTUBE_VIDEO_ID"; // <- ersetzen
+    /***************
+     * CONFIG
+     ***************/
+    const STORAGE_KEY = "xmas_riddle_25_state_v1";
 
-    const nameEl = document.getElementById("name");
-    const wrap = document.getElementById("videoWrap");
-    const msg = document.getElementById("msg");
-    const yt = document.getElementById("yt");
+    // >>> HIER später deine YouTube IDs eintragen (nur die Video-ID, nicht die ganze URL)
+    const YT_VIDEO_ID_ANDRE   = "PASTE_ANDRE_VIDEO_ID_HERE";
+    const YT_VIDEO_ID_HENDRIK = "PASTE_HENDRIK_VIDEO_ID_HERE";
 
-    function norm(s){ return (s||"").trim().toLowerCase(); }
-
-    document.getElementById("go").onclick = () => {
-      const n = norm(nameEl.value);
-      if(!n) return;
-
-      if(allowed.includes(n)) {
-        msg.textContent = `Hi ${nameEl.value.trim()} — hier kommt deine Botschaft. 🎁`;
-        yt.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-        wrap.style.display = "block";
-        nameEl.disabled = true;
-      } else {
-        alert("Hmm… der Name passt nicht ganz. Versuch’s nochmal 🙂");
+    const QUESTIONS = [
+      {
+        title: "Frage 1",
+        q: "Welches Wort im Wörterbuch wird falsch geschrieben?",
+        a: ["falsch"],
+        hint: "Denk nicht zu kompliziert: Die Frage spielt mit dem Wort selbst."
+      },
+      {
+        title: "Frage 2",
+        q: "Je mehr davon da ist, desto weniger sieht man. Was ist es?",
+        a: ["dunkelheit"],
+        hint: "Das Gegenteil von Licht. Je mehr davon, desto weniger erkennst du."
+      },
+      {
+        title: "Frage 3",
+        q: "Was wird größer, je mehr man davon wegnimmt?",
+        a: ["loch"],
+        hint: "Stell dir vor, du gräbst. Mit jedem Spatenstich entsteht mehr davon."
       }
+    ];
+
+    /***************
+     * STATE
+     ***************/
+    const defaultState = () => ({
+      step: "intro",     // intro | quiz | tetris | name
+      quizIndex: 0,      // 0..2
+      quizDone: false,
+      tetrisDone: false,
+      linesCleared: 0,   // total cleared lines across attempts (for goal only)
+      nameStageReached: false
+    });
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return defaultState();
+        const s = JSON.parse(raw);
+        return { ...defaultState(), ...s };
+      }catch{
+        return defaultState();
+      }
+    }
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let state = loadState();
+    const app = document.getElementById("app");
+
+    /***************
+     * HELPERS
+     ***************/
+    const esc = (s) => (s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    const norm = (s) => {
+      // trim + lower + remove accents/diacritics (Andre == André)
+      return (s || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
     };
 
-    nameEl.addEventListener("keydown", (e) => {
-      if(e.key === "Enter") document.getElementById("go").click();
+    function burstEmoji(){
+      const burst = document.createElement("div");
+      burst.className = "burst";
+      const emojis = ["🎁","✨","❄️","🎄","🦌","🍪"];
+      for(let i=0;i<14;i++){
+        const el = document.createElement("i");
+        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        const dx = (Math.random()*320 - 160) + "px";
+        const dy = (Math.random()*260 - 140) + "px";
+        el.style.setProperty("--dx", dx);
+        el.style.setProperty("--dy", dy);
+        el.style.fontSize = (14 + Math.random()*18) + "px";
+        burst.appendChild(el);
+      }
+      app.appendChild(burst);
+      setTimeout(()=>burst.remove(), 950);
+    }
+
+    /***************
+     * UI RENDER
+     ***************/
+    function render(){
+      if(state.step === "intro") return renderIntro();
+      if(state.step === "quiz")  return renderQuiz();
+      if(state.step === "tetris")return renderTetris();
+      if(state.step === "name")  return renderName();
+      state.step = "intro"; saveState(); renderIntro();
+    }
+
+    function renderIntro(){
+      app.innerHTML = `
+        <div class="badge">🎅 <b>X-Mas Riddle '25</b> <span>•</span> <span>Mobile-Ready</span></div>
+        <h1 class="title"><span class="grad">Herzlich Willkommen</span><br/>zum X-Mas Riddle '25</h1>
+        <p class="subtitle">
+          Kleine Rätsel, ein Mini-Game, dann wartet dein Geschenk.
+          <br/>Fortschritt wird auf diesem Gerät gespeichert.
+        </p>
+        <button class="primary" id="startBtn">▶️ Start</button>
+        <div class="spacer"></div>
+        <button class="ghost mini" id="skipBtn" title="(Nur für dich zum Testen)">⚙️ Debug: Direkt zum Namen</button>
+      `;
+      document.getElementById("startBtn").onclick = () => {
+        state.step = "quiz";
+        state.quizIndex = state.quizDone ? 3 : state.quizIndex;
+        saveState();
+        render();
+      };
+      document.getElementById("skipBtn").onclick = () => {
+        state.step = "name";
+        state.quizDone = true;
+        state.tetrisDone = true;
+        state.nameStageReached = true;
+        saveState();
+        render();
+      };
+      app.classList.add("fadeIn");
+      setTimeout(()=>app.classList.remove("fadeIn"), 260);
+    }
+
+    function renderQuiz(){
+      // If already done, go next
+      if(state.quizDone){
+        state.step = "tetris";
+        saveState();
+        return render();
+      }
+
+      const idx = Math.min(state.quizIndex, QUESTIONS.length - 1);
+      const Q = QUESTIONS[idx];
+
+      app.innerHTML = `
+        <div class="badge">🧩 <b>Rätsel</b> <span>•</span> <span>${idx+1}/3</span></div>
+        <h2 style="margin:8px 0 6px; font-size:20px; letter-spacing:-0.01em">${esc(Q.title)}</h2>
+        <p class="subtitle" style="font-size:15px; margin-bottom:12px">${esc(Q.q)}</p>
+
+        <input id="answer" placeholder="Deine Antwort…" autocomplete="off" />
+        <div class="row" style="margin-top:10px">
+          <button class="primary" id="checkBtn">✅ Bestätigen</button>
+          <button class="ghost" id="hintBtn">💡 Tipp</button>
+        </div>
+
+        <div class="hint" id="hintBox">${esc(Q.hint)}</div>
+        <div class="feedback" id="fb"></div>
+
+        <p class="smallnote" style="margin-top:8px">
+          Hinweis: Groß-/Kleinschreibung ist egal.
+        </p>
+      `;
+
+      const input = document.getElementById("answer");
+      const fb = document.getElementById("fb");
+      const hintBox = document.getElementById("hintBox");
+
+      function check(){
+        const a = norm(input.value);
+        const ok = Q.a.some(x => norm(x) === a);
+        if(ok){
+          fb.className = "feedback ok";
+          fb.textContent = "Richtig! 🎉 Weiter geht’s…";
+          burstEmoji();
+
+          state.quizIndex = idx + 1;
+          if(state.quizIndex >= QUESTIONS.length){
+            state.quizDone = true;
+            state.step = "tetris";
+          }
+          saveState();
+
+          setTimeout(()=>render(), 520);
+        }else{
+          fb.className = "feedback no";
+          fb.textContent = "Nope 😄 Versuch’s nochmal.";
+          input.focus();
+        }
+      }
+
+      document.getElementById("checkBtn").onclick = check;
+      document.getElementById("hintBtn").onclick = () => {
+        hintBox.style.display = (hintBox.style.display === "block") ? "none" : "block";
+      };
+      input.addEventListener("keydown", (e)=>{ if(e.key === "Enter") check(); });
+
+      input.focus();
+      app.classList.add("fadeIn");
+      setTimeout(()=>app.classList.remove("fadeIn"), 260);
+    }
+
+    /***************
+     * TETRIS
+     ***************/
+    let tetris = null;
+
+    function renderTetris(){
+      if(state.tetrisDone){
+        state.step = "name";
+        state.nameStageReached = true;
+        saveState();
+        return render();
+      }
+
+      app.innerHTML = `
+        <div class="badge">🧱 <b>Tetris-Mini-Game</b> <span>•</span> <span>Ziel: 3 Reihen</span></div>
+        <h2 style="margin:8px 0 6px; font-size:20px; letter-spacing:-0.01em">Kurze Challenge</h2>
+        <p class="subtitle" style="font-size:15px; margin-bottom:10px">
+          Schaffe es, <b>insgesamt 3 Reihen zu löschen</b> (egal welche).
+          <br/>Dann geht’s zum Geschenk. 🎁
+        </p>
+
+        <div class="tetrisWrap">
+          <canvas id="tetris" width="300" height="600" aria-label="Tetris"></canvas>
+
+          <div class="row" style="justify-content:space-between; width:100%">
+            <div class="badge" style="margin:0">✅ Reihen gelöscht: <b id="lineCount">${state.linesCleared}</b>/3</div>
+            <button class="ghost mini" id="newGameBtn">🔁 Neu starten</button>
+          </div>
+
+          <div class="controls" aria-label="Steuerung">
+            <button class="ghost" id="leftBtn">⬅️</button>
+            <button class="ghost" id="rotateBtn">🔄</button>
+            <button class="ghost" id="rightBtn">➡️</button>
+            <button class="primary" id="downBtn">⬇️</button>
+          </div>
+
+          <p class="smallnote">
+            Tipp: Auf Handy nutzt du die Buttons. Auf Desktop gehen auch Pfeiltasten + ↑ für Drehen.
+          </p>
+
+          <div class="row" style="width:100%">
+            <button class="primary" id="continueBtn" style="display:none">🎁 Weiter zum Namen</button>
+          </div>
+
+          <div class="feedback" id="tFb"></div>
+        </div>
+      `;
+
+      const canvas = document.getElementById("tetris");
+      const ctx = canvas.getContext("2d");
+      const lineCountEl = document.getElementById("lineCount");
+      const continueBtn = document.getElementById("continueBtn");
+      const tFb = document.getElementById("tFb");
+
+      // Fit canvas nicely for mobile
+      function resizeCanvas(){
+        const maxW = Math.min(360, app.clientWidth - 6);
+        const w = Math.max(260, maxW);
+        canvas.width  = Math.floor(w);
+        canvas.height = Math.floor(w * 2);
+      }
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+
+      // --- Minimal Tetris Engine ---
+      const COLS = 10;
+      const ROWS = 20;
+
+      const COLORS = [
+        null,
+        "rgba(51,255,153,.90)",   // 1
+        "rgba(255,85,119,.90)",   // 2
+        "rgba(255,230,120,.92)",  // 3
+        "rgba(120,200,255,.92)",  // 4
+        "rgba(210,150,255,.92)",  // 5
+        "rgba(255,170,110,.92)",  // 6
+        "rgba(255,255,255,.85)"   // 7
+      ];
+
+      function createMatrix(r, c){
+        return Array.from({length:r}, ()=>Array(c).fill(0));
+      }
+
+      const PIECES = "IJLOSTZ";
+      const SHAPES = {
+        I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+        J: [[2,0,0],[2,2,2],[0,0,0]],
+        L: [[0,0,3],[3,3,3],[0,0,0]],
+        O: [[4,4],[4,4]],
+        S: [[0,5,5],[5,5,0],[0,0,0]],
+        T: [[0,6,0],[6,6,6],[0,0,0]],
+        Z: [[7,7,0],[0,7,7],[0,0,0]]
+      };
+
+      function rotate(mat, dir){
+        // transpose
+        for(let y=0;y<mat.length;y++){
+          for(let x=0;x<y;x++){
+            [mat[x][y], mat[y][x]] = [mat[y][x], mat[x][y]];
+          }
+        }
+        // reverse rows/cols
+        if(dir > 0) mat.forEach(row => row.reverse());
+        else mat.reverse();
+      }
+
+      function collide(arena, player){
+        const [m, o] = [player.matrix, player.pos];
+        for(let y=0;y<m.length;y++){
+          for(let x=0;x<m[y].length;x++){
+            if(m[y][x] !== 0 &&
+               (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0){
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      function merge(arena, player){
+        player.matrix.forEach((row,y)=>{
+          row.forEach((val,x)=>{
+            if(val !== 0){
+              arena[y + player.pos.y][x + player.pos.x] = val;
+            }
+          });
+        });
+      }
+
+      function sweep(arena){
+        let rowCount = 0;
+        outer: for(let y=arena.length-1; y>=0; y--){
+          for(let x=0; x<arena[y].length; x++){
+            if(arena[y][x] === 0) continue outer;
+          }
+          const row = arena.splice(y,1)[0].fill(0);
+          arena.unshift(row);
+          y++;
+          rowCount++;
+        }
+        return rowCount;
+      }
+
+      function drawMatrix(matrix, offset){
+        const cell = canvas.width / COLS;
+        for(let y=0;y<matrix.length;y++){
+          for(let x=0;x<matrix[y].length;x++){
+            const v = matrix[y][x];
+            if(v !== 0){
+              ctx.fillStyle = COLORS[v] || "white";
+              const px = (x + offset.x) * cell;
+              const py = (y + offset.y) * cell;
+
+              ctx.fillRect(px+1, py+1, cell-2, cell-2);
+
+              // subtle highlight
+              ctx.fillStyle = "rgba(255,255,255,.12)";
+              ctx.fillRect(px+2, py+2, cell-4, Math.max(6, cell*0.18));
+            }
+          }
+        }
+      }
+
+      function draw(){
+        // background grid
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        const cell = canvas.width / COLS;
+
+        ctx.fillStyle = "rgba(0,0,0,.16)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.strokeStyle = "rgba(255,255,255,.06)";
+        ctx.lineWidth = 1;
+        for(let x=0;x<=COLS;x++){
+          ctx.beginPath();
+          ctx.moveTo(x*cell,0);
+          ctx.lineTo(x*cell,canvas.height);
+          ctx.stroke();
+        }
+        for(let y=0;y<=ROWS;y++){
+          ctx.beginPath();
+          ctx.moveTo(0,y*cell);
+          ctx.lineTo(canvas.width,y*cell);
+          ctx.stroke();
+        }
+
+        drawMatrix(arena, {x:0,y:0});
+        drawMatrix(player.matrix, player.pos);
+      }
+
+      function playerReset(){
+        const type = PIECES[Math.floor(Math.random()*PIECES.length)];
+        const matrix = SHAPES[type].map(r => r.slice());
+        player.matrix = matrix;
+        player.pos.y = 0;
+        player.pos.x = Math.floor(COLS/2) - Math.floor(matrix[0].length/2);
+        if(collide(arena, player)){
+          // game over -> reset arena
+          arena.forEach(row => row.fill(0));
+          tFb.className = "feedback no";
+          tFb.textContent = "Oha! Game Over 😄 Neu gestartet.";
+        }
+      }
+
+      function playerDrop(){
+        player.pos.y++;
+        if(collide(arena, player)){
+          player.pos.y--;
+          merge(arena, player);
+          const cleared = sweep(arena);
+          if(cleared > 0){
+            state.linesCleared += cleared;
+            lineCountEl.textContent = state.linesCleared;
+            saveState();
+            burstEmoji();
+            tFb.className = "feedback ok";
+            tFb.textContent = `Nice! +${cleared} Reihe(n) gelöscht.`;
+          } else {
+            tFb.textContent = "";
+          }
+
+          if(state.linesCleared >= 3){
+            state.tetrisDone = true;
+            saveState();
+            continueBtn.style.display = "block";
+            tFb.className = "feedback ok";
+            tFb.textContent = "Geschafft! 🎉 Du hast 3 Reihen gelöscht.";
+            // Stop loop
+            tetris.running = false;
+          } else {
+            playerReset();
+          }
+        }
+        dropCounter = 0;
+      }
+
+      function playerMove(dir){
+        player.pos.x += dir;
+        if(collide(arena, player)) player.pos.x -= dir;
+      }
+
+      function playerRotate(dir){
+        const pos = player.pos.x;
+        let offset = 1;
+        rotate(player.matrix, dir);
+        while(collide(arena, player)){
+          player.pos.x += offset;
+          offset = -(offset + (offset > 0 ? 1 : -1));
+          if(offset > player.matrix[0].length){
+            rotate(player.matrix, -dir);
+            player.pos.x = pos;
+            return;
+          }
+        }
+      }
+
+      const arena = createMatrix(ROWS, COLS);
+      const player = { pos: {x:0,y:0}, matrix: null };
+
+      let dropCounter = 0;
+      let lastTime = 0;
+      const dropInterval = 520; // ms
+
+      tetris = { running: true };
+
+      function update(time = 0){
+        if(!tetris.running) { draw(); return; }
+        const delta = time - lastTime;
+        lastTime = time;
+        dropCounter += delta;
+        if(dropCounter > dropInterval) playerDrop();
+        draw();
+        requestAnimationFrame(update);
+      }
+
+      playerReset();
+      update();
+
+      // Controls (mobile + keyboard)
+      document.getElementById("leftBtn").onclick = ()=>playerMove(-1);
+      document.getElementById("rightBtn").onclick= ()=>playerMove(1);
+      document.getElementById("downBtn").onclick = ()=>playerDrop();
+      document.getElementById("rotateBtn").onclick= ()=>playerRotate(1);
+
+      document.addEventListener("keydown", (e)=>{
+        if(state.step !== "tetris" || !tetris.running) return;
+        if(e.key === "ArrowLeft")  playerMove(-1);
+        if(e.key === "ArrowRight") playerMove(1);
+        if(e.key === "ArrowDown")  playerDrop();
+        if(e.key === "ArrowUp")    playerRotate(1);
+      }, { passive:true });
+
+      // Restart tetris (not full reset)
+      document.getElementById("newGameBtn").onclick = ()=>{
+        // keep cleared count as progress; just reset arena/piece
+        arena.forEach(row => row.fill(0));
+        playerReset();
+        tFb.textContent = "";
+        tetris.running = true;
+        lastTime = 0;
+        dropCounter = 0;
+        requestAnimationFrame(update);
+      };
+
+      continueBtn.onclick = ()=>{
+        state.step = "name";
+        state.nameStageReached = true;
+        saveState();
+        render();
+      };
+
+      app.classList.add("fadeIn");
+      setTimeout(()=>app.classList.remove("fadeIn"), 260);
+    }
+
+    /***************
+     * NAME / VIDEOS
+     ***************/
+    function renderName(){
+      state.step = "name";
+      state.nameStageReached = true;
+      saveState();
+
+      app.innerHTML = `
+        <div class="badge">🎁 <b>Finale</b> <span>•</span> <span>Name eingeben</span></div>
+        <h2 style="margin:8px 0 6px; font-size:20px; letter-spacing:-0.01em">Okay… wer bist du? 😄</h2>
+        <p class="subtitle" style="font-size:15px; margin-bottom:10px">
+          Du kannst hier <b>mehrere Namen ausprobieren</b>, ohne deinen Fortschritt zu verlieren.
+        </p>
+
+        <input id="nameInput" placeholder="Dein Name…" autocomplete="off" />
+        <div class="row" style="margin-top:10px">
+          <button class="primary" id="nameBtn">✅ Bestätigen</button>
+          <button class="ghost" id="clearBtn">🧼 Eingabe leeren</button>
+        </div>
+
+        <div class="feedback" id="nameFb"></div>
+
+        <div class="videoBox" id="videoArea" style="display:none; margin-top:12px"></div>
+
+        <p class="smallnote" style="margin-top:12px">
+          Hinweis: André wird wie Andre behandelt (keine Akzent-Probleme).
+        </p>
+      `;
+
+      const input = document.getElementById("nameInput");
+      const fb = document.getElementById("nameFb");
+      const videoArea = document.getElementById("videoArea");
+
+      function showVideo(which){
+        videoArea.style.display = "block";
+
+        if(which === "andre"){
+          fb.className = "feedback ok";
+          fb.textContent = "Hi André/Andre! Hier ist dein Video 🎬🎁";
+          burstEmoji();
+
+          videoArea.innerHTML = `
+            <div class="placeholder" style="margin-bottom:10px">
+              <b>Andre-Video</b><br/>
+              ✅ Hier wird das YouTube-Embedding angezeigt.<br/>
+              <span style="opacity:.85">Trage oben im Code <code>YT_VIDEO_ID_ANDRE</code> ein.</span>
+            </div>
+            ${
+              YT_VIDEO_ID_ANDRE.includes("PASTE_")
+              ? `<div class="placeholder">⚠️ Noch keine Video-ID gesetzt. (Suche im Code nach <b>YT_VIDEO_ID_ANDRE</b>.)</div>`
+              : `<iframe
+                   src="https://www.youtube.com/embed/${esc(YT_VIDEO_ID_ANDRE)}?rel=0&modestbranding=1"
+                   title="Andre Video"
+                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                   allowfullscreen></iframe>`
+            }
+          `;
+          return;
+        }
+
+        if(which === "hendrik"){
+          fb.className = "feedback ok";
+          fb.textContent = "Hi Hendrik! Hier ist dein Video 🎬🎁";
+          burstEmoji();
+
+          videoArea.innerHTML = `
+            <div class="placeholder" style="margin-bottom:10px">
+              <b>Hendrik-Video</b><br/>
+              ✅ Hier wird das YouTube-Embedding angezeigt.<br/>
+              <span style="opacity:.85">Trage oben im Code <code>YT_VIDEO_ID_HENDRIK</code> ein.</span>
+            </div>
+            ${
+              YT_VIDEO_ID_HENDRIK.includes("PASTE_")
+              ? `<div class="placeholder">⚠️ Noch keine Video-ID gesetzt. (Suche im Code nach <b>YT_VIDEO_ID_HENDRIK</b>.)</div>`
+              : `<iframe
+                   src="https://www.youtube.com/embed/${esc(YT_VIDEO_ID_HENDRIK)}?rel=0&modestbranding=1"
+                   title="Hendrik Video"
+                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                   allowfullscreen></iframe>`
+            }
+          `;
+          return;
+        }
+      }
+
+      function checkName(){
+        const n = norm(input.value);
+        videoArea.style.display = "none";
+        videoArea.innerHTML = "";
+
+        if(!n){
+          fb.className = "feedback no";
+          fb.textContent = "Bitte einen Namen eingeben 🙂";
+          return;
+        }
+
+        if(n === "andre"){
+          showVideo("andre");
+          return;
+        }
+        if(n === "hendrik"){
+          showVideo("hendrik");
+          return;
+        }
+
+        fb.className = "feedback no";
+        fb.textContent = "Schön wär’s, aber du musst dich schon für deinen Namen entscheiden 😄";
+      }
+
+      document.getElementById("nameBtn").onclick = checkName;
+      document.getElementById("clearBtn").onclick = ()=>{ input.value=""; input.focus(); };
+      input.addEventListener("keydown", (e)=>{ if(e.key === "Enter") checkName(); });
+
+      input.focus();
+      app.classList.add("fadeIn");
+      setTimeout(()=>app.classList.remove("fadeIn"), 260);
+    }
+
+    /***************
+     * RESTART BUTTON
+     ***************/
+    document.getElementById("restartBtn").addEventListener("click", ()=>{
+      localStorage.removeItem(STORAGE_KEY);
+      state = defaultState();
+      // Hard refresh to ensure tetris loop is gone
+      location.reload();
     });
+
+    /***************
+     * FESTIVE BACKGROUND
+     ***************/
+    function spawnSnow(){
+      const snow = document.getElementById("snow");
+      snow.innerHTML = "";
+      const count = 26;
+      const glyphs = ["❄️","✳️","✴️","✨"];
+      for(let i=0;i<count;i++){
+        const s = document.createElement("div");
+        s.className = "flake";
+        s.textContent = glyphs[Math.floor(Math.random()*glyphs.length)];
+        const left = Math.random()*100;
+        const dur = 6 + Math.random()*7.5;
+        const delay = Math.random()*-dur;
+        const size = 10 + Math.random()*14;
+        s.style.left = left + "vw";
+        s.style.animationDuration = dur + "s";
+        s.style.animationDelay = delay + "s";
+        s.style.fontSize = size + "px";
+        s.style.opacity = (0.45 + Math.random()*0.5).toFixed(2);
+        snow.appendChild(s);
+      }
+    }
+
+    function spawnGifts(){
+      const gifts = document.getElementById("gifts");
+      gifts.innerHTML = "";
+      const count = 10;
+      const glyphs = ["🎁","🎄","🦌","🍬","🍪","🔔"];
+      for(let i=0;i<count;i++){
+        const g = document.createElement("div");
+        g.className = "gift";
+        g.textContent = glyphs[Math.floor(Math.random()*glyphs.length)];
+        const left = Math.random()*100;
+        const dur = 8 + Math.random()*10;
+        const delay = Math.random()*-dur;
+        const size = 16 + Math.random()*22;
+        g.style.left = left + "vw";
+        g.style.animationDuration = dur + "s";
+        g.style.animationDelay = delay + "s";
+        g.style.fontSize = size + "px";
+        g.style.opacity = (0.55 + Math.random()*0.35).toFixed(2);
+        gifts.appendChild(g);
+      }
+    }
+
+    spawnSnow();
+    spawnGifts();
+
+    /***************
+     * BOOT
+     ***************/
+    // If user already progressed, render that stage.
+    // If quiz was done but tetris not, continue at tetris.
+    if(state.quizDone && !state.tetrisDone) state.step = "tetris";
+    if(state.quizDone && state.tetrisDone) state.step = "name";
+    if(state.step === "quiz" && state.quizIndex >= 3) state.quizDone = true;
+
+    saveState();
+    render();
   </script>
 </body>
 </html>
