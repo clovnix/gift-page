@@ -296,21 +296,14 @@
       padding: 10px;
       overflow:hidden;
     }
-    .videoBox .placeholder{
-      padding: 14px 12px;
-      color: rgba(255,255,255,.78);
-      font-size: 14px;
-      line-height: 1.35;
-      border-radius: 14px;
-      border: 1px dashed rgba(255,255,255,.22);
-      background: rgba(0,0,0,.18);
-    }
+
     iframe{
       width:100%;
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 9 / 16;
       border:0;
       border-radius: 14px;
       display:block;
+      background: rgba(0,0,0,.2);
     }
 
     .fadeIn{ animation: fadeIn .25s ease-out both; }
@@ -336,9 +329,9 @@
      ***************/
     const STORAGE_KEY = "xmas_riddle_25_state_v1";
 
-    // >>> HIER deine YouTube IDs eintragen (nur die Video-ID, nicht die ganze URL)
-    const YT_VIDEO_ID_ANDRE   = "PASTE_ANDRE_VIDEO_ID_HERE";
-    const YT_VIDEO_ID_HENDRIK = "PASTE_HENDRIK_VIDEO_ID_HERE";
+    // ✅ YouTube Shorts IDs (aus deinen Links extrahiert)
+    const YT_VIDEO_ID_ANDRE   = "TCaeBscSL0M";
+    const YT_VIDEO_ID_HENDRIK = "fEnrNlsYt6Q";
 
     const QUESTIONS = [
       {
@@ -537,7 +530,6 @@
     let keyHandlerAttached = false;
 
     function renderTetris(){
-      // während Tetris KEIN Scrollen
       setScrollMode("hidden");
 
       if(state.tetrisDone){
@@ -559,7 +551,6 @@
 
           <canvas id="tetris" aria-label="Tetris"></canvas>
 
-          <!-- 1 Reihe: NUR Steuerung -->
           <div class="controls" aria-label="Steuerung">
             <button class="ghost" id="leftBtn">⬅️</button>
             <button class="ghost" id="rotateBtn">🔄</button>
@@ -575,7 +566,6 @@
 
           <div class="feedback" id="tFb"></div>
 
-          <!-- letzte Reihe: NUR Neustart unten rechts -->
           <div class="row newGameRow" id="newGameRow">
             <button class="ghost mini" id="newGameBtn">🔁 Neu</button>
           </div>
@@ -588,7 +578,6 @@
       const continueBtn = document.getElementById("continueBtn");
       const tFb = document.getElementById("tFb");
 
-      // --- Minimal Tetris Engine ---
       const COLS = 10;
       const ROWS = 20;
 
@@ -665,7 +654,6 @@
         return rowCount;
       }
 
-      // --- Auto-fit (alles ohne Scroll sichtbar) ---
       let viewW = 280;
       let viewH = 560;
 
@@ -679,11 +667,9 @@
         const stageTop = document.querySelector(".stage").getBoundingClientRect().top;
         const usableH = Math.max(420, vh - stageTop - 8);
 
-        // Card auf nutzbare Höhe begrenzen
         app.style.height = usableH + "px";
         app.style.maxHeight = usableH + "px";
 
-        // reservierte Elemente messen
         const topEls = app.querySelectorAll(".tetrisTop");
         let reservedTop = 0;
         topEls.forEach(el => reservedTop += el.getBoundingClientRect().height);
@@ -694,7 +680,7 @@
         const fb = document.getElementById("tFb").getBoundingClientRect().height;
         const newGameRow = document.getElementById("newGameRow").getBoundingClientRect().height;
 
-        const gapsAndPadding = 40; // Luft
+        const gapsAndPadding = 40;
         const availableForCanvasH =
           usableH - reservedTop - controls - note - contRow - fb - newGameRow - gapsAndPadding;
 
@@ -705,17 +691,14 @@
         viewW = w;
         viewH = w * 2;
 
-        // CSS Größe
         canvas.style.width = viewW + "px";
         canvas.style.height = viewH + "px";
 
-        // echte Pixel für scharfe Darstellung
         canvas.width = Math.floor(viewW * dpr);
         canvas.height = Math.floor(viewH * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
 
-      // Tetris Rendering
       function drawMatrix(matrix, offset){
         const cell = viewW / COLS;
         for(let y=0;y<matrix.length;y++){
@@ -845,19 +828,16 @@
         requestAnimationFrame(update);
       }
 
-      // init sizing + start
       fitCanvas();
       playerReset();
       update();
 
-      // re-fit on resize/orientation/keyboard
       window.addEventListener("resize", fitCanvas);
       if(window.visualViewport){
         window.visualViewport.addEventListener("resize", fitCanvas);
         window.visualViewport.addEventListener("scroll", fitCanvas);
       }
 
-      // Controls
       document.getElementById("leftBtn").onclick = ()=>playerMove(-1);
       document.getElementById("rightBtn").onclick= ()=>playerMove(1);
       document.getElementById("downBtn").onclick = ()=>playerDrop();
@@ -874,7 +854,6 @@
         keyHandlerAttached = true;
       }
 
-      // Restart tetris (keine Progress-Reset)
       document.getElementById("newGameBtn").onclick = ()=>{
         arena.forEach(row => row.fill(0));
         playerReset();
@@ -932,56 +911,15 @@
       const fb = document.getElementById("nameFb");
       const videoArea = document.getElementById("videoArea");
 
-      function showVideo(which){
+      function setEmbed(id){
         videoArea.style.display = "block";
-
-        if(which === "andre"){
-          fb.className = "feedback ok";
-          fb.textContent = "Hi André! Hier ist dein Video 🎬🎁";
-          burstEmoji();
-
-          videoArea.innerHTML = `
-            <div class="placeholder" style="margin-bottom:10px">
-              <b>André-Video</b><br/>
-              ✅ Hier wird das YouTube-Embedding angezeigt.<br/>
-              <span style="opacity:.85">Trage oben im Code <code>YT_VIDEO_ID_ANDRE</code> ein.</span>
-            </div>
-            ${
-              YT_VIDEO_ID_ANDRE.includes("PASTE_")
-              ? `<div class="placeholder">⚠️ Noch keine Video-ID gesetzt. (Suche im Code nach <b>YT_VIDEO_ID_ANDRE</b>.)</div>`
-              : `<iframe
-                   src="https://www.youtube.com/embed/${esc(YT_VIDEO_ID_ANDRE)}?rel=0&modestbranding=1"
-                   title="André Video"
-                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                   allowfullscreen></iframe>`
-            }
-          `;
-          return;
-        }
-
-        if(which === "hendrik"){
-          fb.className = "feedback ok";
-          fb.textContent = "Hi Hendrik! Hier ist dein Video 🎬🎁";
-          burstEmoji();
-
-          videoArea.innerHTML = `
-            <div class="placeholder" style="margin-bottom:10px">
-              <b>Hendrik-Video</b><br/>
-              ✅ Hier wird das YouTube-Embedding angezeigt.<br/>
-              <span style="opacity:.85">Trage oben im Code <code>YT_VIDEO_ID_HENDRIK</code> ein.</span>
-            </div>
-            ${
-              YT_VIDEO_ID_HENDRIK.includes("PASTE_")
-              ? `<div class="placeholder">⚠️ Noch keine Video-ID gesetzt. (Suche im Code nach <b>YT_VIDEO_ID_HENDRIK</b>.)</div>`
-              : `<iframe
-                   src="https://www.youtube.com/embed/${esc(YT_VIDEO_ID_HENDRIK)}?rel=0&modestbranding=1"
-                   title="Hendrik Video"
-                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                   allowfullscreen></iframe>`
-            }
-          `;
-          return;
-        }
+        videoArea.innerHTML = `
+          <iframe
+            src="https://www.youtube.com/embed/${esc(id)}?rel=0&modestbranding=1&playsinline=1&autoplay=1"
+            title="YouTube Video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+        `;
       }
 
       function checkName(){
@@ -996,11 +934,17 @@
         }
 
         if(n === "andre"){
-          showVideo("andre");
+          fb.className = "feedback ok";
+          fb.textContent = "Hi André! Hier ist dein Video 🎬🎁";
+          burstEmoji();
+          setEmbed(YT_VIDEO_ID_ANDRE);
           return;
         }
         if(n === "hendrik"){
-          showVideo("hendrik");
+          fb.className = "feedback ok";
+          fb.textContent = "Hi Hendrik! Hier ist dein Video 🎬🎁";
+          burstEmoji();
+          setEmbed(YT_VIDEO_ID_HENDRIK);
           return;
         }
 
