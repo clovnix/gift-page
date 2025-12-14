@@ -34,7 +34,7 @@
       overflow-x:hidden;
       -webkit-font-smoothing: antialiased;
 
-      /* etwas Platz für Safe-Areas + Restart Button */
+      /* Platz für Safe-Areas + fixed Restart Button */
       padding:
         calc(env(safe-area-inset-top) + 12px)
         calc(env(safe-area-inset-right) + 12px)
@@ -174,7 +174,7 @@
       line-height: 1.35;
     }
 
-    /* Fixed restart button */
+    /* Fixed restart button (global) */
     .restart{
       position: fixed;
       right: calc(env(safe-area-inset-right) + 12px);
@@ -267,6 +267,7 @@
       display:block;
     }
 
+    /* Controls in one row */
     .controls{
       width:100%;
       display:grid;
@@ -280,6 +281,11 @@
       color: var(--muted);
       line-height: 1.25;
       margin: 0;
+    }
+
+    /* Bottom row only for the Tetris restart button */
+    .newGameRow{
+      justify-content:flex-end;
     }
 
     .videoBox{
@@ -415,8 +421,7 @@
     }
 
     function setScrollMode(mode){
-      // mode: "auto" | "hidden"
-      document.body.style.overflowY = mode;
+      document.body.style.overflowY = mode; // "auto" | "hidden"
     }
 
     /***************
@@ -432,6 +437,9 @@
 
     function renderIntro(){
       setScrollMode("auto");
+
+      app.style.height = "";
+      app.style.maxHeight = "";
 
       app.innerHTML = `
         <div class="badge">🎅 <b>X-Mas Riddle '25</b></div>
@@ -455,6 +463,9 @@
 
     function renderQuiz(){
       setScrollMode("auto");
+
+      app.style.height = "";
+      app.style.maxHeight = "";
 
       if(state.quizDone){
         state.step = "tetris";
@@ -526,7 +537,7 @@
     let keyHandlerAttached = false;
 
     function renderTetris(){
-      // während Tetris KEIN Scrollen, damit alles intuitiv bedienbar ist
+      // während Tetris KEIN Scrollen
       setScrollMode("hidden");
 
       if(state.tetrisDone){
@@ -543,15 +554,12 @@
             <p class="subtitle" style="font-size:14px">
               Lösche insgesamt <b>3 Reihen</b>. Dann geht’s weiter. 🎁
             </p>
+            <div class="badge" style="margin:0">✅ Reihen: <b id="lineCount">${state.linesCleared}</b>/3</div>
           </div>
 
           <canvas id="tetris" aria-label="Tetris"></canvas>
 
-          <div class="row" id="statsRow" style="justify-content:space-between">
-            <div class="badge" style="margin:0">✅ Reihen: <b id="lineCount">${state.linesCleared}</b>/3</div>
-            <button class="ghost mini" id="newGameBtn">🔁 Neu</button>
-          </div>
-
+          <!-- 1 Reihe: NUR Steuerung -->
           <div class="controls" aria-label="Steuerung">
             <button class="ghost" id="leftBtn">⬅️</button>
             <button class="ghost" id="rotateBtn">🔄</button>
@@ -566,6 +574,11 @@
           </div>
 
           <div class="feedback" id="tFb"></div>
+
+          <!-- letzte Reihe: NUR Neustart unten rechts -->
+          <div class="row newGameRow" id="newGameRow">
+            <button class="ghost mini" id="newGameBtn">🔁 Neu</button>
+          </div>
         </div>
       `;
 
@@ -652,23 +665,21 @@
         return rowCount;
       }
 
-      // --- Auto-fit (wichtig: alles ohne Scroll sichtbar) ---
+      // --- Auto-fit (alles ohne Scroll sichtbar) ---
       let viewW = 280;
       let viewH = 560;
 
       function fitCanvas(){
         const dpr = window.devicePixelRatio || 1;
 
-        // nutzbare Höhe (iOS Safari: visualViewport ist gold)
-        const vh = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+        const vh = (window.visualViewport && window.visualViewport.height)
+          ? window.visualViewport.height
+          : window.innerHeight;
 
-        // Top-Offset der Stage im Viewport
         const stageTop = document.querySelector(".stage").getBoundingClientRect().top;
-
-        // Gesamt nutzbar bis unten (kleiner Puffer)
         const usableH = Math.max(420, vh - stageTop - 8);
 
-        // Card Höhe strikt auf usableH begrenzen
+        // Card auf nutzbare Höhe begrenzen
         app.style.height = usableH + "px";
         app.style.maxHeight = usableH + "px";
 
@@ -677,14 +688,15 @@
         let reservedTop = 0;
         topEls.forEach(el => reservedTop += el.getBoundingClientRect().height);
 
-        const stats = document.getElementById("statsRow").getBoundingClientRect().height;
         const controls = document.querySelector(".controls").getBoundingClientRect().height;
         const note = document.getElementById("tNote").getBoundingClientRect().height;
         const contRow = document.getElementById("continueRow").getBoundingClientRect().height;
         const fb = document.getElementById("tFb").getBoundingClientRect().height;
+        const newGameRow = document.getElementById("newGameRow").getBoundingClientRect().height;
 
-        const gapsAndPadding = 40; // etwas Luft
-        const availableForCanvasH = usableH - reservedTop - stats - controls - note - contRow - fb - gapsAndPadding;
+        const gapsAndPadding = 40; // Luft
+        const availableForCanvasH =
+          usableH - reservedTop - controls - note - contRow - fb - newGameRow - gapsAndPadding;
 
         const maxWByH = Math.floor(availableForCanvasH / 2);
         const maxWByW = Math.floor(Math.min(360, app.clientWidth - 8));
@@ -768,6 +780,7 @@
           player.pos.y--;
           merge(arena, player);
           const cleared = sweep(arena);
+
           if(cleared > 0){
             state.linesCleared += cleared;
             lineCountEl.textContent = state.linesCleared;
@@ -888,6 +901,9 @@
      ***************/
     function renderName(){
       setScrollMode("auto");
+
+      app.style.height = "";
+      app.style.maxHeight = "";
 
       state.step = "name";
       state.nameStageReached = true;
